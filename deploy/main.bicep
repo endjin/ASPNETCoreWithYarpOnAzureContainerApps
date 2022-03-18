@@ -14,6 +14,20 @@ param envResourceGroup string = resourceGroup().name
 @secure()
 param registryPassword string
 
+param keyVaultName string
+param keyVaultResourceGroupName string = resourceGroup().name
+param appInsightsSecretName string = 'AppInsightsConnectionString'
+
+
+// Get a reference to the key vault where the AppInsights connection
+// string is stored, so we can access it via the getSecrets() function
+resource key_vault 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+  name: keyVaultName
+  scope: resourceGroup(keyVaultResourceGroupName)
+}
+
+
+// Get the details of the existing ContainerApp environment or provision a new one
 module existing_env 'existing-environment.bicep' = if (useExistingEnv) {
   name: 'existingContainerAppEnvironment'
   scope: resourceGroup(envResourceGroup)
@@ -21,7 +35,6 @@ module existing_env 'existing-environment.bicep' = if (useExistingEnv) {
     envName: envName
   }
 }
-
 module env 'environment.bicep' = if (!useExistingEnv) {
   name: 'containerAppEnvironment'
   scope: resourceGroup(envResourceGroup)
@@ -30,6 +43,8 @@ module env 'environment.bicep' = if (!useExistingEnv) {
   }
 }
 
+
+// Deploy the container apps
 module catalog_api 'container-app.bicep' = {
   name: 'catalog-api'
   params: {
@@ -41,6 +56,8 @@ module catalog_api 'container-app.bicep' = {
     repositoryImage: catalog_api_image
     allowExternalIngress: false
     allowInternalIngress: true
+    appInsightsConnectionString: key_vault.getSecret(appInsightsSecretName)
+    location: location
   }
 }
 
@@ -57,6 +74,8 @@ module orders_api 'container-app.bicep' = {
     repositoryImage: orders_api_image
     allowExternalIngress: false
     allowInternalIngress: true
+    appInsightsConnectionString: key_vault.getSecret(appInsightsSecretName)
+    location: location
   }
 }
 
@@ -87,6 +106,8 @@ module ui 'container-app.bicep' = {
         value: orders_api_fqdn
       }
     ]
+    appInsightsConnectionString: key_vault.getSecret(appInsightsSecretName)
+    location: location
   }
 }
 
@@ -113,5 +134,9 @@ module yarp 'container-app.bicep' = {
         value: ui_fqdn
       }
     ]
+    appInsightsConnectionString: key_vault.getSecret(appInsightsSecretName)
+    location: location
   }
 }
+
+output yarp_gateway_fqdn string = 'https://${yarp.outputs.fqdn}/'
