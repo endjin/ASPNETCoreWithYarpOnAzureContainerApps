@@ -153,17 +153,32 @@ $ContainersToBuild = @(
 #
 $ExcludeFilesFromCodeCoverage = ""
 
+# Allows any containers to be built with a custom version tag, rather than the default SemVer provided by GitVersion
+$ContainerImageVersionOverride = ""
+
+
 # Synopsis: Build, Test and Package
 task . FullBuild
 
+# Synopsis: Set the container image version
+task GenerateContainerBuildTag GitVersion,{
+    if ($ContainerImageVersionOverride) {
+        Write-Host "Overriding default container image version tag: $ContainerImageVersionOverride"
+        $script:containerBuildTag = $ContainerImageVersionOverride
+    }
+    else {
+        $script:containerBuildTag = ($script:GitVersion).SemVer
+    }
+}
+
 # Synopsis: Build Container Images
-task BuildContainerImages -If {!$SkipContainerImages} GitVersion,{
+task BuildContainerImages -If {!$SkipContainerImages} GenerateContainerBuildTag,{
     foreach ($buildInfo in $ContainersToBuild) {
         $contextDir = $buildInfo.ContainsKey("ContextDir") ? $buildInfo.ContextDir : (Split-Path -Parent $buildInfo.Dockerfile)
+        Write-Host "Building Container: $($buildInfo.Dockerfile)"
         exec {
-            Write-Host "Building Container: $($buildInfo.Dockerfile)"
             docker build `
-                -t ("{0}:{1}" -f $buildInfo.ImageName, ($script:GitVersion).SemVer) `
+                -t ("{0}:{1}" -f $buildInfo.ImageName, $containerBuildTag) `
                 -f $buildInfo.Dockerfile `
                 $contextDir
         }
@@ -171,12 +186,12 @@ task BuildContainerImages -If {!$SkipContainerImages} GitVersion,{
 }
 
 # Synopsis: Publish Container Images to GHCR
-task PublishContainerImages GitVersion,{
+task PublishContainerImages GenerateContainerBuildTag,{
     foreach ($buildInfo in $ContainersToBuild) {
-        $buildTag = "{0}:{1}" -f $buildInfo.ImageName, ($script:GitVersion).SemVer
+        $buildTag = "{0}:{1}" -f $buildInfo.ImageName, $containerBuildTag
         $publishTag = "docker.pkg.github.com/endjin/aspnetcorewithyarponazurecontainerapps/$buildTag"
+        Write-Host "Publishing Container: $publishTag"
         exec {
-            Write-Host "Publishing Container: $publishTag"
             docker tag $buildTag $publishTag
             docker push $publishTag
         }

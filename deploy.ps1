@@ -20,10 +20,10 @@ $armParams = @{
     envResourceGroup = $ContainerAppEnvResourceGroupName
     envName = $ContainerAppEnvName
 
-    catalog_api_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapiscatalog:0.2.0"
-    orders_api_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapisorders:0.2.0"
-    ui_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapisui:0.2.0"
-    yarp_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsproxy:0.2.0"
+    catalog_api_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapiscatalog:0.2.1"
+    orders_api_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapisorders:0.2.1"
+    ui_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapisui:0.2.1"
+    yarp_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsproxy:0.2.1"
     registry = "ghcr.io"
     registryUsername = ""
     registryPassword = ""
