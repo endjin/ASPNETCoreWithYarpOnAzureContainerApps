@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Corvus.Monitoring.ApplicationInsights" Version="1.3.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0" />
     <PackageReference Include="Yarp.Telemetry.Consumption" Version="1.0.0" />

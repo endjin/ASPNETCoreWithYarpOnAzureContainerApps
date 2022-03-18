@@ -2,7 +2,12 @@
 param (
     [string] $ResourceGroupName = "aspnet-yarp-container-demo-rg",
     [string] $ContainerAppEnvResourceGroupName = $ResourceGroupName,
-    [string] $ContainerAppEnvName = ""
+    [string] $ContainerAppEnvName = "",
+
+    [Parameter(Mandatory=$true)]
+    [string] $KeyVaultName,
+    [Parameter(Mandatory=$true)]
+    [string] $keyVaultResourceGroupName
 )
 
 $ErrorActionPreference = "Stop"
@@ -15,13 +20,15 @@ $armParams = @{
     envResourceGroup = $ContainerAppEnvResourceGroupName
     envName = $ContainerAppEnvName
 
-    catalog_api_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapiscatalog:0.1.0"
-    orders_api_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapisorders:0.1.0"
-    ui_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapisui:0.1.0"
-    yarp_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsproxy:0.1.0"
+    catalog_api_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapiscatalog:0.2.0"
+    orders_api_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapisorders:0.2.0"
+    ui_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsapisui:0.2.0"
+    yarp_image = "ghcr.io/endjin/aspnetcorewithyarponazurecontainerapps/dotnetoncontainerappsproxy:0.2.0"
     registry = "ghcr.io"
     registryUsername = ""
     registryPassword = ""
+    keyVaultName = $KeyVaultName
+    keyVaultResourceGroupName = $keyVaultResourceGroupName
 }
 
 New-AzResourceGroup `
